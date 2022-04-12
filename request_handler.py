@@ -1,5 +1,7 @@
+import json
+
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from views import get_all_animals, get_single_animal
+from views import get_all_animals, get_single_animal, get_all_locations, get_single_location
 
 
 # Here's a class. It inherits from another class.
@@ -11,7 +13,7 @@ class HandleRequests(BaseHTTPRequestHandler):
     # It gives a description of the class or function
     """Controls the functionality of any GET, PUT, POST, DELETE requests to the server
     """
-    def parse_url(self, path):
+    def parse_url(self, path) -> tuple[str, int]:
         # Just like splitting a string in JavaScript. If the
         # path is "/animals/1", the resulting list will
         # have "" at index 0, "animals" at index 1, and "1"
@@ -75,6 +77,13 @@ class HandleRequests(BaseHTTPRequestHandler):
 
             else:
                 response = f"{get_all_animals()}"
+        
+        if resource == "locations":
+            if id is not None:
+                response = f"{get_single_location(id)}"
+
+            else:
+                response = f"{get_all_locations()}"
 
         self.wfile.write(response.encode())
 

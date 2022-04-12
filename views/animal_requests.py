@@ -23,11 +23,11 @@ ANIMALS = [
 ]
 
 
-def get_all_animals() -> list[dict]:
+def get_all_animals() -> list[dict[str, any]]:
     return ANIMALS
 
 # Function with a single parameter
-def get_single_animal(id: int) -> dict:
+def get_single_animal(id: int) -> dict[str, any]:
     # Variable to hold the found animal, if it exists
     requested_animal = None
 
