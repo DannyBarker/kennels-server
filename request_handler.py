@@ -1,7 +1,23 @@
 import json
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from views import get_all_animals, get_single_animal, get_all_locations, get_single_location
+from views import (
+    get_all_animals,
+    get_single_animal,
+    create_animal,
+    delete_animal,
+    update_animal,
+    get_all_locations,
+    get_single_location,
+    create_location,
+    get_all_employees,
+    get_single_employee,
+    create_employee,
+    get_all_customers,
+    get_single_customer,
+    create_customer
+                   )
+from models import Animal
 
 
 # Here's a class. It inherits from another class.
@@ -84,29 +100,91 @@ class HandleRequests(BaseHTTPRequestHandler):
 
             else:
                 response = f"{get_all_locations()}"
+        
+        if resource == "employees":
+            if id is not None:
+                response = f"{get_single_employee(id)}"
+
+            else:
+                response = f"{get_all_employees()}"
+        
+        if resource == "customers":
+            if id is not None:
+                response = f"{get_single_customer(id)}"
+
+            else:
+                response = f"{get_all_customers()}"
 
         self.wfile.write(response.encode())
 
     # Here's a method on the class that overrides the parent's method.
     # It handles any POST request.
     def do_POST(self):
-        """Handles POST requests to the server
-        """
-        # Set response code to 'Created'
         self._set_headers(201)
-
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
-        response = f"received post request:<br>{post_body}"
-        self.wfile.write(response.encode())
+
+        # Convert JSON string to a Python dictionary
+        post_body = json.loads(post_body)
+
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
+
+        # Initialize new animal
+        new_dict = None
+
+        # Add a new animal to the list. Don't worry about
+        # the orange squiggle, you'll define the create_animal
+        # function next.
+        if not new_dict:
+            if resource == "animals":
+                new_animal = Animal(1, "Brixton", "Dog", "Admitted", 1, 2)
+                new_dict = new_animal.create_animal()
+                
+            if resource == "locations":
+                new_dict = create_location(post_body)
+                
+            if resource == "employees":
+                new_dict = create_employee(post_body)
+            
+            if resource == "customers":
+                new_dict = create_customer(post_body)
+
+        # Encode the new animal and send in response
+        self.wfile.write(f"{new_dict}".encode())
 
     # Here's a method on the class that overrides the parent's method.
     # It handles any PUT request.
 
     def do_PUT(self):
-        """Handles PUT requests to the server
-        """
-        self.do_POST()
+        self._set_headers(204)
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        post_body = json.loads(post_body)
+
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
+
+        # Delete a single animal from the list
+        if resource == "animals":
+            update_animal(id, post_body)
+
+        # Encode the new animal and send in response
+        self.wfile.write("".encode())
+        
+    def do_DELETE(self):
+        # Set a 204 response code
+        self._set_headers(204)
+
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
+
+        # Delete a single animal from the list
+        if resource == "animals":
+            delete_animal(id)
+
+        # Encode the new animal and send in response
+        self.wfile.write("".encode())
 
 
 # This function is not inside the class. It is the starting
@@ -121,3 +199,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
